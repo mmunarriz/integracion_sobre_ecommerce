@@ -2,9 +2,10 @@ import express from "express";
 import __dirname from './utils.js';
 import productsRouter from './routes/products.js'
 import cartsRouter from './routes/carts.js'
-// import viewsRouter from './routes/views.js'
+import viewsRouter from './routes/views.js'
 import handlebars from 'express-handlebars';
 import mongoose from 'mongoose';
+import { Server } from "socket.io";
 
 const app = express();
 const PORT = 8080;
@@ -20,8 +21,25 @@ app.use(express.static(__dirname + '/public'))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// app.use('/', viewsRouter)
+app.use('/', viewsRouter)
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 
 const server = app.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
+
+const io = new Server(server)
+
+let messages = [];
+
+io.on('connection', socket => {
+    console.log('Nuevo cliente conectado');
+
+    socket.on('message', data => {
+        messages.push(data);
+        io.emit('messageLogs', messages);
+    })
+
+    socket.on('authenticated', data => {
+        socket.broadcast.emit('newUserConnected', data);
+    })
+})

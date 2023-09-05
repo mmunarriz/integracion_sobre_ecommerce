@@ -2,7 +2,7 @@ import productsModel from "../models/products.js"
 
 export default class Products {
     constructor() {
-        console.log(`Working products with Database persistence in mongodb`)
+        // console.log(`Working products with Database persistence in mongodb`)
     }
     getAll = async () => {
         let products = await productsModel.find();

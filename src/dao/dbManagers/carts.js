@@ -2,7 +2,7 @@ import cartsModel from "../models/carts.js";
 
 export default class Carts {
     constructor() {
-        console.log("Working carts with database in mongodb")
+        // console.log("Working carts with database in mongodb")
     }
     saveCart = async (cart) => {
         let result = await cartsModel.create(cart);
