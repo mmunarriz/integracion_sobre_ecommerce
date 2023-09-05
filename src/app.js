@@ -6,6 +6,7 @@ import viewsRouter from './routes/views.js'
 import handlebars from 'express-handlebars';
 import mongoose from 'mongoose';
 import { Server } from "socket.io";
+import Message from './dao/models/message.js';
 
 const app = express();
 const PORT = 8080;
@@ -36,10 +37,24 @@ io.on('connection', socket => {
 
     socket.on('message', data => {
         messages.push(data);
-        io.emit('messageLogs', messages);
-    })
+
+        // Crea un nuevo mensaje usando el messageSchema y lo guarda en MongoDB
+        const newMessage = new Message({
+            user: data.user,
+            message: data.message,
+        });
+
+        newMessage.save()
+            .then(() => {
+                io.emit('messageLogs', messages);
+            })
+            .catch(error => {
+                console.error('Error al guardar el mensaje en MongoDB:', error);
+            });
+    });
 
     socket.on('authenticated', data => {
         socket.broadcast.emit('newUserConnected', data);
-    })
-})
+    });
+});
+
